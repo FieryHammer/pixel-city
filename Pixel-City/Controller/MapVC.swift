@@ -9,6 +9,8 @@
 import UIKit
 import MapKit
 import CoreLocation
+import Alamofire
+import AlamofireImage
 
 class MapVC: UIViewController, UIGestureRecognizerDelegate {
 
@@ -27,6 +29,9 @@ class MapVC: UIViewController, UIGestureRecognizerDelegate {
     var flowLayout = UICollectionViewFlowLayout()
     var collectionView: UICollectionView?
     
+    var imageUrlArray = [String]()
+    var imageArray = [UIImage]()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -40,7 +45,7 @@ class MapVC: UIViewController, UIGestureRecognizerDelegate {
         collectionView?.delegate = self
         collectionView?.dataSource = self
         pullUpView.addSubview(collectionView!)
-        collectionView?.backgroundColor = UIColor.green
+        collectionView?.backgroundColor = UIColor.white
     }
 
     @IBAction func centerMapBtnPressed(_ sender: Any) {
@@ -66,6 +71,8 @@ class MapVC: UIViewController, UIGestureRecognizerDelegate {
     }
     
     func animateViewUp() {
+        cancelAllSession()
+        
         pullUpViewHeightConstraint.constant = 300
         
         UIView.animate(withDuration: 0.3) {
@@ -78,6 +85,8 @@ class MapVC: UIViewController, UIGestureRecognizerDelegate {
     }
     
     func animateViewDown() {
+        cancelAllSession()
+        
         pullUpViewHeightConstraint.constant = 0
         
         UIView.animate(withDuration: 0.3) {
@@ -124,6 +133,49 @@ class MapVC: UIViewController, UIGestureRecognizerDelegate {
         }
     }
     
+    func retrieveUrls(for annotation: DroppablePin, completion: @escaping (_ status: Bool) -> ()) {
+        Alamofire.request(flickrURL(apiKey: FLICKR_API_KEY, annotation: annotation, numberOfPhotos: 40)).responseJSON { (response) in
+            if response.error != nil {
+                completion(false)
+                return
+            }
+            
+            guard let json = response.result.value as? Dictionary<String, AnyObject> else { completion(false); return }
+            let photosDict = json["photos"] as? Dictionary<String, AnyObject>
+            guard let photoDictArray = photosDict?["photo"] as? [Dictionary<String, AnyObject>] else { completion(false); return }
+            
+            for photo in photoDictArray {
+                let postUrl = "https://farm\(photo["farm"]!).staticflickr.com/\(photo["server"]!)/\(photo["id"]!)_\(photo["secret"]!)_h_d.jpg"
+                self.imageUrlArray.append(postUrl)
+            }
+            
+            completion(true)
+        }
+    }
+    
+    func retrieveImages(completion: @escaping (_ status: Bool) -> ()) {
+        for url in imageUrlArray {
+            Alamofire.request(url).responseImage { (response) in
+                guard let image = response.value else { completion(false); return }
+                self.imageArray.append(image)
+                self.progressLbl?.text = "\(self.imageArray.count)/\(self.imageUrlArray.count) IMAGES DOWNLOADED"
+                
+                
+                // TODO: Make this async and out of this block
+                if self.imageArray.count == self.imageUrlArray.count {
+                    completion(true)
+                }
+            }
+        }
+    }
+    
+    func cancelAllSession() {
+        Alamofire.SessionManager.default.session.getTasksWithCompletionHandler { (sessionDataTask, _, sessionDownloadTask) in
+            sessionDataTask.forEach({ $0.cancel() })
+            sessionDownloadTask.forEach({ $0.cancel() })
+        }
+    }
+    
 }
 
 extension MapVC: MKMapViewDelegate {
@@ -148,17 +200,31 @@ extension MapVC: MKMapViewDelegate {
     }
     
     @objc func dropPin(gestureRecognizer: UITapGestureRecognizer) {
+        removePins()
+        imageUrlArray.removeAll()
+        imageArray.removeAll()
+        collectionView?.reloadData()
+        
         let touchPoint = gestureRecognizer.location(in: mapView)
         let touchCoordinate = mapView.convert(touchPoint, toCoordinateFrom: mapView)
         let annotation = DroppablePin(coordinate: touchCoordinate, identifier: DROPPABLE_PIN_IDENTIFIER)
         
-        removePins()
         mapView.addAnnotation(annotation)
         let coordinateRegion = MKCoordinateRegion(center: touchCoordinate, latitudinalMeters: regionRadius * 2.0, longitudinalMeters: regionRadius * 2.0)
         mapView.setRegion(coordinateRegion, animated: true)
         animateViewUp()
         
-        print(flickrURL(apiKey: FLICKR_API_KEY, annotation: annotation, numberOfPhotos: 40))
+        retrieveUrls(for: annotation) { (success) in
+            if success {
+                self.retrieveImages(completion: { (success) in
+                    if success {
+                        self.removeSpinner()
+                        self.removeProgressLbl()
+                        self.collectionView?.reloadData()
+                    }
+                })
+            }
+        }
     }
     
     func removePins() {
@@ -180,15 +246,16 @@ extension MapVC: CLLocationManagerDelegate {
 
 extension MapVC: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        //number of items in array
-        return 1
+        return imageArray.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PHOTO_CELL_IDENTIFIER, for: indexPath) as? PhotoCell {
-                return cell
+            let imageView = UIImageView(image: imageArray[indexPath.item])
+            cell.addSubview(imageView)
+            return cell
         }
         
-        return PhotoCell()
+        return UICollectionViewCell()
     }
 }
