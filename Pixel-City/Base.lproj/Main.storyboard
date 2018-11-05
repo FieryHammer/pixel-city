@@ -52,7 +52,7 @@
                                 <rect key="frame" x="0.0" y="667" width="375" height="0.0"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" id="5No-UA-FKG"/>
+                                    <constraint firstAttribute="height" id="Or5-zj-aWf"/>
                                 </constraints>
                             </view>
                         </subviews>
@@ -62,7 +62,7 @@
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="14c-4x-9vP" secondAttribute="trailing" constant="10" id="5TD-Hb-i9I"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="dag-fw-UWG" secondAttribute="trailing" id="7fE-2F-REO"/>
                             <constraint firstItem="yQD-VW-Pvj" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="G2y-ME-azF"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="14c-4x-9vP" secondAttribute="bottom" constant="20" id="dQG-OQ-z3O"/>
+                            <constraint firstItem="dag-fw-UWG" firstAttribute="bottom" secondItem="14c-4x-9vP" secondAttribute="bottom" constant="20" id="dQG-OQ-z3O"/>
                             <constraint firstItem="grx-04-v7M" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="gbr-7a-s6f"/>
                             <constraint firstItem="yQD-VW-Pvj" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="mfx-JA-1mn"/>
                             <constraint firstItem="dag-fw-UWG" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="oAS-xI-hU7"/>
@@ -75,6 +75,8 @@
                     </view>
                     <connections>
                         <outlet property="mapView" destination="dag-fw-UWG" id="JKF-qX-xp2"/>
+                        <outlet property="pullUpView" destination="grx-04-v7M" id="5oN-ch-13R"/>
+                        <outlet property="pullUpViewHeightConstraint" destination="Or5-zj-aWf" id="3ju-qS-Zjx"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
