@@ -17,6 +17,7 @@
 		F18E7A4821906690008ED930 /* PhotoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18E7A4721906690008ED930 /* PhotoCell.swift */; };
 		F18E7A4A21906C23008ED930 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18E7A4921906C23008ED930 /* Constants.swift */; };
 		F18E7A4C21918A25008ED930 /* PopVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18E7A4B21918A25008ED930 /* PopVC.swift */; };
+		F18E7A4F2191CC26008ED930 /* DataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18E7A4E2191CC26008ED930 /* DataService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +35,7 @@
 		F18E7A4721906690008ED930 /* PhotoCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCell.swift; sourceTree = "<group>"; };
 		F18E7A4921906C23008ED930 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		F18E7A4B21918A25008ED930 /* PopVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopVC.swift; sourceTree = "<group>"; };
+		F18E7A4E2191CC26008ED930 /* DataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,6 +88,7 @@
 		F18E7A2D2189F3A3008ED930 /* Pixel-City */ = {
 			isa = PBXGroup;
 			children = (
+				F18E7A4D2191CBEF008ED930 /* Services */,
 				F18E7A442189F4AB008ED930 /* Utilities */,
 				F18E7A432189F4A4008ED930 /* Extensions */,
 				F18E7A422189F477008ED930 /* Model */,
@@ -138,6 +141,14 @@
 				F18E7A4921906C23008ED930 /* Constants.swift */,
 			);
 			path = Utilities;
+			sourceTree = "<group>";
+		};
+		F18E7A4D2191CBEF008ED930 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				F18E7A4E2191CC26008ED930 /* DataService.swift */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -255,6 +266,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F18E7A4C21918A25008ED930 /* PopVC.swift in Sources */,
+				F18E7A4F2191CC26008ED930 /* DataService.swift in Sources */,
 				F18E7A4A21906C23008ED930 /* Constants.swift in Sources */,
 				F18E7A4821906690008ED930 /* PhotoCell.swift in Sources */,
 				F18E7A312189F3A3008ED930 /* MapVC.swift in Sources */,
