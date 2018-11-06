@@ -46,6 +46,7 @@ class MapVC: UIViewController, UIGestureRecognizerDelegate {
         collectionView?.dataSource = self
         pullUpView.addSubview(collectionView!)
         collectionView?.backgroundColor = UIColor.white
+        registerForPreviewing(with: self, sourceView: collectionView!)
     }
 
     @IBAction func centerMapBtnPressed(_ sender: Any) {
@@ -57,7 +58,6 @@ class MapVC: UIViewController, UIGestureRecognizerDelegate {
     func setupGestureRecognizers() {
         let doubleTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dropPin(gestureRecognizer:)))
         doubleTapGestureRecognizer.numberOfTapsRequired = 2
-        doubleTapGestureRecognizer.delegate = self
         
         mapView.addGestureRecognizer(doubleTapGestureRecognizer)
         
@@ -176,6 +176,29 @@ class MapVC: UIViewController, UIGestureRecognizerDelegate {
         }
     }
     
+    func resizeImage(image: UIImage, targetSize: CGSize) -> UIImage {
+        let size = image.size
+        let widthRatio = targetSize.width / size.width
+        let heightRatio = targetSize.height / size.height
+        
+        var newSize: CGSize
+        if (widthRatio > heightRatio) {
+            newSize = CGSize(width: size.width * heightRatio, height: size.height * heightRatio)
+        }
+        else {
+            newSize = CGSize(width: size.width * widthRatio, height: size.height * widthRatio)
+        }
+        
+        let rect = CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height)
+        
+        UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
+        image.draw(in: rect)
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        return newImage!
+    }
+    
 }
 
 extension MapVC: MKMapViewDelegate {
@@ -251,11 +274,39 @@ extension MapVC: UICollectionViewDelegate, UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if let cell = collectionView.dequeueReusableCell(withReuseIdentifier: PHOTO_CELL_IDENTIFIER, for: indexPath) as? PhotoCell {
-            let imageView = UIImageView(image: imageArray[indexPath.item])
+            let image = imageArray[indexPath.item]
+            let resizedImage = resizeImage(image: image, targetSize: cell.contentView.frame.size)
+            let imageView = UIImageView(image: resizedImage)
+            imageView.contentMode = .scaleAspectFit
             cell.addSubview(imageView)
             return cell
         }
         
         return UICollectionViewCell()
     }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let popVC = storyboard?.instantiateViewController(withIdentifier: "PopVC") as? PopVC else { return }
+        popVC.setImage(imageArray[indexPath.item])
+        present(popVC, animated: true, completion: nil)
+    }
+}
+
+extension MapVC: UIViewControllerPreviewingDelegate {
+    func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
+        guard let indexPath = collectionView?.indexPathForItem(at: location), let cell = collectionView?.cellForItem(at: indexPath) else { return nil }
+        
+        guard let popVC = storyboard?.instantiateViewController(withIdentifier: "PopVC") as? PopVC else { return nil }
+        
+        popVC.setImage(imageArray[indexPath.item])
+        previewingContext.sourceRect = cell.contentView.frame
+        
+        return popVC
+    }
+    
+    func previewingContext(_ previewingContext: UIViewControllerPreviewing, commit viewControllerToCommit: UIViewController) {
+        show(viewControllerToCommit, sender: self)
+    }
+    
+    
 }
